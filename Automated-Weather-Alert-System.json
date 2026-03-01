@@ -1,0 +1,163 @@
+{
+  "name": "Weather-Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 3
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -464,
+        32
+      ],
+      "id": "ID",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://api.openweathermap.org/data/2.5/weather?q=Manila&appid=YOUR_OPENWEATHER_API_KEY",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openWeatherMapApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "Pasig City"
+            },
+            {
+              "name": "units",
+              "value": "metric"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -256,
+        32
+      ],
+      "id": "ID",
+      "name": "HTTP Request",
+      "credentials": {
+        "openWeatherMapApi": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "OpenWeatherMap account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "recipient@example.com",
+        "subject": "=🚨 Weather Update: {{ $json.weather[0].main }} detected in {{ $json.name }}",
+        "message": "=<h3>📊 Complete Weather Data Report: {{ $json.name }} ({{ $json.id }})</h3>\n\n<p><strong>📍 Location & System</strong><br>\n- Coordinates: {{ $json.coord.lat }}, {{ $json.coord.lon }}<br>\n- Country: {{ $json.sys.country }}<br>\n- Timezone: {{ $json.timezone }}<br>\n- Base Station: {{ $json.base }}</p>\n\n<p><strong>☁️ Weather Condition</strong><br>\n- Main: {{ $json.weather[0].main }}<br>\n- Description: {{ $json.weather[0].description }}<br>\n- Icon Code: {{ $json.weather[0].icon }}<br>\n- Cloudiness: {{ $json.clouds.all }}%</p>\n\n<p><strong>🌡️ Main Measurements</strong><br>\n- Current Temp: {{ $json.main.temp }}°C<br>\n- Feels Like: {{ $json.main.feels_like }}°C<br>\n- Min/Max Temp: {{ $json.main.temp_min }}°C / {{ $json.main.temp_max }}°C<br>\n- Humidity: {{ $json.main.humidity }}%<br>\n- Pressure: {{ $json.main.pressure }} hPa<br>\n- Sea Level: {{ $json.main.sea_level }} hPa<br>\n- Ground Level: {{ $json.main.grnd_level }} hPa<br>\n- Visibility: {{ $json.visibility }}m</p>\n\n<p><strong>💨 Wind & Atmosphere</strong><br>\n- Wind Speed: {{ $json.wind.speed }} m/s<br>\n- Wind Degree: {{ $json.wind.deg }}°<br>\n- Data Checked At: {{ new Date($json.dt * 1000).toLocaleString() }}</p>\n\n<p><strong>🌅 Sun Schedule (Manila Time)</strong><br>\n- Sunrise: {{ new Date($json.sys.sunrise * 1000).toLocaleTimeString() }}<br>\n- Sunset: {{ new Date($json.sys.sunset * 1000).toLocaleTimeString() }}</p>\n\n<p><strong>✅ Metadata</strong><br>\n- System ID: {{ $json.sys.id }} (Type {{ $json.sys.type }})<br>\n- Response Code (cod): {{ $json.cod }} (Success)</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ID",
+      "name": "Send a message",
+      "webhookId": "REDACTED",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ID",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "ID",
+        "text": "=📊 Complete Weather Data Report: {{ $json.name }} ({{ $json.id }})\n\n📍 Location & System\n- Coordinates: {{ $json.coord.lat }}, {{ $json.coord.lon }}\n- Country: {{ $json.sys.country }}\n- Timezone: {{ $json.timezone }}\n- Base Station: {{ $json.base }}\n\n☁️ Weather Condition\n- Main: {{ $json.weather[0].main }}\n- Description: {{ $json.weather[0].description }}\n- Icon Code: {{ $json.weather[0].icon }}\n- Cloudiness: {{ $json.clouds.all }}%\n\n🌡️ Main Measurements\n- Current Temp: {{ $json.main.temp }}°C\n- Feels Like: {{ $json.main.feels_like }}°C\n- Min/Max Temp: {{ $json.main.temp_min }}°C / {{ $json.main.temp_max }}°C<br>\n- Humidity: {{ $json.main.humidity }}%\n- Pressure: {{ $json.main.pressure }} \n- Sea Level: {{ $json.main.sea_level }} \n- Ground Level: {{ $json.main.grnd_level }} \n- Visibility: {{ $json.visibility }}m\n\n💨 Wind & Atmosphere\n- Wind Speed: {{ $json.wind.speed }} m/s\n- Wind Degree: {{ $json.wind.deg }}°\n- Data Checked At: {{ new Date($json.dt * 1000).toLocaleString() }}\n\n🌅 Sun Schedule (Manila Time)\n- Sunrise: {{ new Date($json.sys.sunrise * 1000).toLocaleTimeString() }}\n- Sunset: {{ new Date($json.sys.sunset * 1000).toLocaleTimeString() }}\n\n✅ Metadata\n- System ID: {{ $json.sys.id }} (Type {{ $json.sys.type }})\n- Response Code (cod): {{ $json.cod }} (Success)",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        192
+      ],
+      "id": "ID",
+      "name": "Send a text message",
+      "webhookId": "ID",
+      "credentials": {
+        "telegramApi": {
+          "id": "ID",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "Automated-Weather-Alert-System",
+        "height": 80,
+        "width": 400,
+        "color": "#82A423"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -256,
+        -112
+      ],
+      "id": "ID",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "ID",
+  "meta": {
+    "instanceId": "REDACTED"
+  },
+  "id": "ElmrCPpL1CIDodGS",
+  "tags": []
+}
